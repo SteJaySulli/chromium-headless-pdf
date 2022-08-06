@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+            }
+
+            label {
+                display: inline-block;
+                height: 20px;
+            }
+
+            input {
+                height: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Headless Chromium PDF Generation Test</h1>
+        <form action="/url" method="post">
+            <label for="url">URL</label>
+            <input id="url" type="url" name="url"/>
+            <input type="checkbox" name="options[landscape]" value="true" />
+            <input type="submit" value="Get PDF"/>
+        </form>
+    </body>    
+</html>
