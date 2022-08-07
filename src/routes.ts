@@ -11,7 +11,7 @@ const page = app.get("page");
   });
 
   app.get("/script-test",(req: Request, res: Response) => {
-    res.send('<html><body><div id="out">This is some text</div><script>console.log("Testing script"); var el = document.getElementById("out"); el.innerHTML = "This text has been altered!";</script></body></html>');
+    res.send('<html><body><div id="out">This is appearing because scripts have been prevented from running.</div><script>console.log("Testing script"); var el = document.getElementById("out"); el.innerHTML = "This is appearing because scripts have been allowed to run, and the text on the page has been changed by a script.";</script></body></html>');
   });
   
   app.get("/test-pdf", (req: Request, res: Response) => {

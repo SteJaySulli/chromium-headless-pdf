@@ -19,53 +19,21 @@ interface ImageOptions extends ScreenshotOptions {
   height?: number
 };
 
-function cleanScreenshotOptions(options: ImageOptions): ImageOptions {
-  const defaultOptions: ImageOptions = {
-    captureBeyondViewport: false,
-    encoding: "binary",
-    fullPage: false,
-    omitBackground: false,
-    quality: 100,
-    type: "jpeg",
-  }
-  return Object.assign({}, defaultOptions, options);
-}
-
-const cleanPdfOptions = (options) => {
-  const defaultOptions: PDFOptions = {
-    scale: 1,
-    printBackground: true,
-    margin: {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-    },
-    preferCSSPageSize: true,
-    landscape: false,
-    format: "A4",
-  };
-
-  if (
-    options.landscape &&
-    (options.landscape === "true" ||
-      options.landscape === true ||
-      options.landscape === 1 ||
-      options.landscape === "1")
-  ) {
-    options.landscape = true;
-  } else {
-    options.landscape = false;
-  }
-
-  return Object.assign({}, defaultOptions, options);
-};
-
 export class WebPage {
+
+  /**
+   * Types
+   */
   browser: Browser;
   settings: WebPageSettings;
   page: Page;
   onLoad?: (page: Page) => void;
+  errors: [string];
+
+  /**
+   * Constructor
+   * @param browser 
+   */
   constructor(browser: Browser) {
     this.browser = browser;
     this.settings = {
@@ -103,6 +71,11 @@ export class WebPage {
     return this;
   }
 
+  /**
+   * Load the given URL in a new page
+   * @param url 
+   * @returns 
+   */
   async go(url: string) {
     // Create a page if needed
     if (!this.page) {
@@ -123,9 +96,14 @@ export class WebPage {
     return this;
   }
 
+  /**
+   * Wrapper around Page.pdf in order to produce a PDF from the loaded page
+   * @param options 
+   * @returns 
+   */
   async pdf(options: PDFOptions) {
     return await this.page.pdf(
-      cleanPdfOptions(options)
+      this.cleanPdfOptions(options)
     );
   }
 
@@ -136,8 +114,107 @@ export class WebPage {
       height,
     });
     return await this.page.screenshot(
-      cleanScreenshotOptions(options)
+      this.cleanScreenshotOptions(options)
     );
   }
 
+  cleanScreenshotOptions(options: ImageOptions): ImageOptions {
+    const defaultOptions: ImageOptions = {
+      captureBeyondViewport: false,
+      encoding: "binary",
+      fullPage: false,
+      omitBackground: false,
+      quality: 100,
+      type: "jpeg",
+      width: 1920,
+      height: 1080,
+    }
+    return Object.assign({}, defaultOptions, options);
+  }
+  
+  cleanPdfOptions (options) {
+    const defaultOptions: PDFOptions = {
+      scale: 1,
+      printBackground: true,
+      margin: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+      preferCSSPageSize: true,
+      landscape: false,
+      format: "A4",
+      width: 0,
+      height: 0,
+    };
+  
+    const cleansedOptions = Object.keys(options).reduce( (acc: any, key: any) => {
+      const value = options[key];
+      switch(key) {
+        case "scale":
+          if(!isNaN(value) && value >= 0.1 && value <= 2) {
+            acc[key] = value;
+          } else {
+            console.warn(`Invalid ${key}:`, value, "Must be a number between 0.1 and 2");
+          }
+          break;
+        
+        case "printBackground":
+        case "preferCSSPageSize":
+        case "landscape":
+          if(value === true || value === false) {
+            acc[key] = value;
+          } else {
+            console.warn(`Invalid ${key}:`, value, "Must be a boolean");
+          }
+          break;
+        
+        case "margin":
+          const margin = Object.keys(options.margin).reduce( (acc:any, key:any) => {
+            if(["top","bottom","left","right"].includes(key)) {
+              const value = options.margin[key];
+              if(!isNaN(value) || (typeof value == "string" && value.match(/^[0-9]+(mm|cm|in)$/))) {
+                acc[key] = options.margin[key];
+              } else {
+                console.warn(`Invalid margin: ${key} must be either an integer, or a string specifying mm, cm or in`);  
+              }
+            } else {
+              console.warn(`Invalid margin: ${key} is not one of top, bottom, left or right`);
+            }
+            return acc;
+          }, {});
+          if(Object.keys(margin).length == 4) {
+            acc[key] = margin;
+          }
+          break;
+
+          case "format":
+            if([ "A0", "A1", "A2", "A3", "A4", "A5", "A6", "Letter", "Tabloid", "Ledger", ].includes(value)) {
+              acc[key] = value;
+            } else {
+              console.warn(`Invalid ${key}:`, value, "Must be one of A0, A1, A2, A3, A4, A5, A6, Legal, Tabloid or Ledger");
+            }
+            break;
+          
+          case "width":
+          case "height":
+            if(!isNaN(value) || (typeof value == "string" && value.match(/^[0-9]+(mm|cm|in)$/))) {
+              acc[key] = value;
+            } else {
+              console.warn(`Invalid ${key}: must be either an integer, or a string specifying mm, cm or in`);  
+            }
+            break;             
+      }
+      return acc;
+    }, defaultOptions);
+
+    if(cleansedOptions.width == 0 || cleansedOptions.height == 0 ) {
+      delete cleansedOptions.width;
+      delete cleansedOptions.height;
+    }
+
+    return cleansedOptions;
+  };
+  
 }
