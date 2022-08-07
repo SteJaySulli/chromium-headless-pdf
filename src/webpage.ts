@@ -120,7 +120,7 @@ export class WebPage {
 
   cleanScreenshotOptions(options: ImageOptions): ImageOptions {
     const defaultOptions: ImageOptions = {
-      captureBeyondViewport: false,
+      captureBeyondViewport: true,
       encoding: "binary",
       fullPage: false,
       omitBackground: false,
@@ -129,7 +129,48 @@ export class WebPage {
       width: 1920,
       height: 1080,
     }
-    return Object.assign({}, defaultOptions, options);
+
+    const cleansedOptions = Object.keys(options).reduce( (acc: any, key: any) => {
+      const value = options[key];
+      switch(key) {
+        case "type":
+          if(["jpeg","png", "webm"].includes(value)) {
+            acc[key] = value;
+          } else {
+            console.warn(`Invalid ${key}:`, value, "Must be jpeg, png or webm");
+          }
+          break;
+        
+        case "quality":
+          if(!isNaN(value) && value >=0 && value <= 100) {
+            
+          } else {
+
+          }
+          break;
+        
+        case "fullPage":
+        case "omitBackground":
+          if(value === true || value === false) {
+            acc[key] = value;
+          } else {
+            console.warn(`Invalid ${key}:`, value, "Must be a boolean");
+          }
+          break;
+        
+          case "width":
+          case "height":
+            if(!isNaN(value) && value > 0) {
+              acc[key] = value;
+            } else {
+              console.warn(`Invalid ${key}: must be either an integer greater than zero`);  
+            }
+            break;             
+      }
+      return acc;
+    }, defaultOptions);
+
+    return cleansedOptions;
   }
   
   cleanPdfOptions (options) {
