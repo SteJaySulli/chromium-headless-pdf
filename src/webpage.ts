@@ -212,6 +212,8 @@ export class WebPage {
     if(cleansedOptions.width == 0 || cleansedOptions.height == 0 ) {
       delete cleansedOptions.width;
       delete cleansedOptions.height;
+    } else {
+      delete cleansedOptions.format;
     }
 
     return cleansedOptions;
