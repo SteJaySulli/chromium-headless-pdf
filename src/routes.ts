@@ -18,9 +18,9 @@ const page = app.get("page");
     res.sendFile(page("test-pdf.html"));
   });
 
-  app.get("/pdf/url", (request, response) => chromium.pdfUrlRequest(request, response));
+  // app.get("/pdf/url", (request, response) => chromium.pdfUrlRequest(request, response));
   app.post("/pdf/url", (request, response) => chromium.pdfUrlRequest(request, response));
-  app.get("/image/url", (request, response) => chromium.imageUrlRequest(request, response));
+  // app.get("/image/url", (request, response) => chromium.imageUrlRequest(request, response));
   app.post("/image/url", (request, response) => chromium.imageUrlRequest(request, response));
 
 };

@@ -10,6 +10,7 @@ When requesting an image, you can supply the following options.
 * `omitBackground` - Boolean, whether or not to omit the background. Defaults to `false`.
 * `type` - String, must be one of `jpeg`, `png` or `webm`. Defaults to `jpeg`.
 * `quality` - Number between 0 and 100, where 0 is the worst and 100 is the best. This effects JPEG compression, so it has not effect on `png` or `webm` images
+* `clip` - Object containing `width`, `height`, `x` and `y` integer values, specifying a rectangle of the site to extract from the total size. If set, the values are specified relative to the set `width` and `height` of the image.
 
 ## Underlying options structure
 

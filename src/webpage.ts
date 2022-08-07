@@ -165,11 +165,36 @@ export class WebPage {
             } else {
               console.warn(`Invalid ${key}: must be either an integer greater than zero`);  
             }
-            break;             
+            break;
+          
+          case "clip":
+            const clip = Object.keys(options.clip).reduce( (acc:any, key:any) => {
+              const value = options.clip[key];
+              if(["width", "height"].includes(key)) {
+                if(!isNaN(value) && value > 0) {
+                  acc[key] = options.clip[key];
+                } else {
+                  console.warn(`Invalid clip: ${key} must be either an integer greater than zero`);  
+                }
+              } else if(["x", "y"].includes(key)) {
+                if(!isNaN(value) && value >= 0) {
+                  acc[key] = options.clip[key];
+                } else {
+                  console.warn(`Invalid clip: ${key} must be either an integer greater than or equal to zero`);  
+                }
+              } else {
+                console.warn(`Invalid clip: ${key} is not one of top, bottom, left or right`);
+              }
+              return acc;
+            }, {});
+            if(Object.keys(clip).length == 4) {
+              acc[key] = clip;
+            }
+            break;
       }
       return acc;
     }, defaultOptions);
-
+    
     return cleansedOptions;
   }
   
