@@ -11,4 +11,4 @@ I am experimenting with getting this project deployed via Docker -- **this is cu
 
 # Documentation
 
-[View the REST API documentation](./docs/REST_API.md)
+[View the REST API documentation](./doc/REST_API.md)
